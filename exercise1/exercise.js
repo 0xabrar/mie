@@ -35,10 +35,10 @@ function start_exercise() {
 
 	// 2) Firing section
 	var firing_text = canvas.display.text({
-		x: 15,
+		x: 7,
 		y: 10,
-		font: "bold 14px sans-serif",
-		text: "Firing Rate",
+		font: "bold 12px sans-serif",
+		text: "Cell Firing Rate",
 		fill: "#ffff"
 	});
 
@@ -52,13 +52,12 @@ function start_exercise() {
 	});
 
 
-
 	// 3) Selection sectoin
 	var spot_text = canvas.display.text({
 		x: 30,
 		y: 10,
-		font: "bold 14px sans-serif",
-		text: "Spot Size",
+		font: "bold 12px sans-serif",
+		text: "Light Size",
 		fill: "#ffff"
 	});
 
@@ -66,7 +65,8 @@ function start_exercise() {
 		x: 25,
 		y: 50,
 		radius: 8,
-		fill: "#0aa"
+		fill: "#0aa",
+		border: "2px solid black"
 	});
 
 	var medium_ball = canvas.display.ellipse({
@@ -80,7 +80,7 @@ function start_exercise() {
 		x: 110,
 		y: 50,
 		radius: 25,
-		fill: "#0aa"
+		fill: "red"
 	});
 
 	var spot_off = canvas.display.rectangle({
@@ -111,7 +111,7 @@ function start_exercise() {
 		x: 7,
 		y: 7,
 		font: "bold 12px sans-serif",
-		text: "SPOT OFF",
+		text: "LIGHT OFF",
 		fill: "white"
 	});
 
@@ -130,6 +130,10 @@ function start_exercise() {
 		radius: 50,
 		fill: "#0aa",
 		last: 2 * large_ball.radius
+	}).bind("mouseenter", function() {
+		canvas.mouse.cursor("pointer");
+	}) .bind("mouseleave", function() {
+		canvas.mouse.cursor("default");
 	});
 
 	var outer_circle = canvas.display.ellipse({
@@ -139,6 +143,7 @@ function start_exercise() {
 		fill: "red"
 	});
 
+
 	var inner_circle = canvas.display.ellipse({
 		x: 100,
 		y: 100,
@@ -146,11 +151,36 @@ function start_exercise() {
 		fill: "green"
 	});
 
+	var outer_circle_text = canvas.display.text({
+		x: outer_circle.x - 7,
+		y: outer_circle.y - outer_circle.radius - inner_circle.radius/2,
+		font: "bold 50px sans-serif",
+		text: "-",
+		fill: "black"
+	});
+
+	var outer_circle_text_2 = canvas.display.text({
+		x: outer_circle.x - 7,
+		y: outer_circle.y + inner_circle.radius/3,
+		font: "bold 50px sans-serif",
+		text: "-",
+		fill: "black"
+	});
+
+	var inner_circle_text = canvas.display.text({
+		x: inner_circle.x - 14,
+		y: inner_circle.y-inner_circle.radius/1.3,	
+		font: "bold 50px sans-serif",
+		text: "+",
+		fill: "black"
+	});
+	
+
 	var cell_title = canvas.display.text({
 		x: 125,
 		y: 10,
 		font: "bold 14px sans-serif",
-		text: "ON-Center Cell",
+		text: "ON-Centre Cell",
 		fill: "black"
 	});
 
@@ -158,42 +188,67 @@ function start_exercise() {
 	small_ball.bind("click tap", function() {
 		spot_control.radius = 2 * this.radius;
 		spot_control.last = spot_control.radius;
+
+		small_ball.fill = "red";
+		medium_ball.fill = "#0aa";
+		large_ball.fill = "#0aa";
+
+		colliding();
 		canvas.redraw();
+	}).bind("mouseenter", function() {
+		canvas.mouse.cursor("pointer");
+	}) .bind("mouseleave", function() {
+		canvas.mouse.cursor("default");
 	});
 
 	medium_ball.bind("click tap", function() {
 		spot_control.radius = 2 * this.radius;
 		spot_control.last = spot_control.radius;
+
+		small_ball.fill = "#0aa";
+		medium_ball.fill = "red";
+		large_ball.fill = "#0aa";
+
+		colliding();
 		canvas.redraw();
+	}) .bind("mouseenter", function() {
+		canvas.mouse.cursor("pointer");
+	}) .bind("mouseleave", function() {
+		canvas.mouse.cursor("default");
 	});
 
 	large_ball.bind("click tap", function() {
 		spot_control.radius = 2 * this.radius;
 		spot_control.last = spot_control.radius;
+
+		small_ball.fill = "#0aa";
+		medium_ball.fill = "#0aa";
+		large_ball.fill = "red";
+
+		colliding();
 		canvas.redraw();
+	}).bind("mouseenter", function() {
+		canvas.mouse.cursor("pointer");
+	}) .bind("mouseleave", function() {
+		canvas.mouse.cursor("default");
 	});
 
 	spot_off_button.bind("click tap", function() {
-		if (spot_on_off.text == "SPOT OFF") {
-			spot_on_off.text = "SPOT ON";
+		if (spot_on_off.text == "LIGHT OFF") {
+			spot_on_off.text = "LIGHT ON";
 			spot_control.radius = 0;
 		} else {
-			spot_on_off.text = "SPOT OFF";
+			spot_on_off.text = "LIGHT OFF";
 			spot_control.radius = spot_control.last;
 		}
 		canvas.redraw();
+	}).bind("mouseenter", function() {
+		canvas.mouse.cursor("pointer");
+	}) .bind("mouseleave", function() {
+		canvas.mouse.cursor("default");
 	});
 
 	new_rf_button.bind("click tap", function() {
-
-		var radius = Math.random() < 0.5 ? 50 : 30;
-		outer_circle.radius = radius;
-		if (outer_circle.radius == 50) {
-			inner_circle.radius = 30;
-		} else {
-			inner_circle.radius = 16;
-		}
-		
 
 		var x = Math.random() * (250 - 0);
 		var y = Math.random() * (250 - 0);
@@ -203,8 +258,43 @@ function start_exercise() {
 		inner_circle.x = x + outer_circle.radius;
 		inner_circle.y = y + outer_circle.radius;
 
-		
+		if (outer_circle.radius == 50) {
+			outer_circle.radius = 30
+			inner_circle.radius = 16;
+
+			outer_circle_text.font = "bold 30px sans-serif";
+			outer_circle_text_2.font = "bold 30px sans-serif";
+			inner_circle_text.font = "bold 30px sans-serif";
+
+
+			outer_circle_text.x = outer_circle.x - 5;
+			outer_circle_text.y = outer_circle.y - outer_circle.radius - inner_circle.radius/2;
+			outer_circle_text_2.x = outer_circle.x - 5;
+			outer_circle_text_2.y = outer_circle.y + inner_circle.radius/3;
+			inner_circle_text.x = inner_circle.x - 9;
+			inner_circle_text.y = inner_circle.y-inner_circle.radius;
+
+		} else {
+			outer_circle.radius = 50;
+			inner_circle.radius = 30;
+
+			outer_circle_text.font = "bold 50px sans-serif";
+			outer_circle_text_2.font = "bold 50px sans-serif";
+			inner_circle_text.font = "bold 50px sans-serif";
+
+			outer_circle_text.x = outer_circle.x - 7;
+			outer_circle_text.y = outer_circle.y - outer_circle.radius - inner_circle.radius/2;
+			outer_circle_text_2.x = outer_circle.x - 7;
+			outer_circle_text_2.y = outer_circle.y + inner_circle.radius/3;
+			inner_circle_text.x = inner_circle.x - 14;
+			inner_circle_text.y = inner_circle.y-inner_circle.radius/1.3;	
+
+		}
 		canvas.redraw();
+	}).bind("mouseenter", function() {
+		canvas.mouse.cursor("pointer");
+	}) .bind("mouseleave", function() {
+		canvas.mouse.cursor("default");
 	});
 
 
@@ -234,8 +324,12 @@ function start_exercise() {
 	moving_section.addChild(cell_title);
 	moving_section.addChild(outer_circle);
 	moving_section.addChild(inner_circle);
-	moving_section.addChild(spot_control);
 
+	moving_section.addChild(outer_circle_text);
+	moving_section.addChild(outer_circle_text_2);
+	moving_section.addChild(inner_circle_text);
+
+	moving_section.addChild(spot_control);
 
 	setInterval(function(){ 
 		rate = firing_rate.base;
@@ -245,8 +339,7 @@ function start_exercise() {
 	}, 1000);
 
 
-	spot_control.dragAndDrop({
-		move: function() {
+	function colliding() {
 			var dx = spot_control.x - outer_circle.x;
 			var dy = spot_control.y - outer_circle.y;
 			var distance = Math.sqrt(dx * dx + dy * dy);
@@ -320,26 +413,14 @@ function start_exercise() {
 					}
 				}
 			}
-
-			/*
-
-			if (distance + 1.7 * outer_circle.radius < spot_control.radius + outer_circle.radius) {
-				firing_rate.text = "1";
-				firing_rate.base = 2;	
-			} 
-			else if (inner_distance + 1.4 * inner_circle.radius < spot_control.radius + inner_circle.radius){
-				firing_rate.text = "85";
-				firing_rate.base = 85;
-			}
-			else if (distance + 0.3 * outer_circle.radius < spot_control.radius + outer_circle.radius) {
-				firing_rate.text = "1";
-				firing_rate.base = 2;
-			} else {
-				firing_rate.text = "11";
-				firing_rate.base = 11;
-			} */
 		}
-	});
+
+
+
+	spot_control.dragAndDrop({
+		move: function() {
+			colliding();
+		} 	});
 
 
 }
