@@ -51,8 +51,59 @@ function start_exercise() {
 		base: 11
 	});
 
+	var firing_background = canvas.display.rectangle({ 
+		x: 15, 
+		y: 55,
+		width: 70,
+		height: 20, 
+		fill: "black"
+	});
 
-	// 3) Selection sectoin
+	var firing_background_line = canvas.display.line({
+		start: {x: firing_background.x, y: firing_background.y + firing_background.height/2}, 
+		end: {x: firing_background.x + firing_background.width, y: firing_background.y + firing_background.height/2},
+		stroke: "2px green"
+	});
+
+
+	// all of the firing lines
+	var fl = canvas.display.line({
+		start: {x: firing_background.x + 40, y: firing_background.y}, 
+		end: {x: firing_background.x + 40, y: firing_background.y + firing_background.height},
+		stroke: "3px green"
+	});
+
+	var fl2 = canvas.display.line({
+		start: {x: firing_background.x , y: firing_background.y}, 
+		end: {x: firing_background.x , y: firing_background.y + firing_background.height},
+		stroke: "3px green"
+	});
+
+	var fl3 = canvas.display.line({
+		start: {x: firing_background.x + 30, y: firing_background.y}, 
+		end: {x: firing_background.x + 30, y: firing_background.y + firing_background.height},
+		stroke: "3px green"
+	});
+
+	var fl4 = canvas.display.line({
+		start: {x: firing_background.x + 50, y: firing_background.y}, 
+		end: {x: firing_background.x + 50, y: firing_background.y + firing_background.height},
+		stroke: "3px green"
+	});
+
+	var fl5 = canvas.display.line({
+		start: {x: firing_background.x + 10, y: firing_background.y}, 
+		end: {x: firing_background.x + 10, y: firing_background.y + firing_background.height},
+		stroke: "3px green"
+	});
+
+	var fl6 = canvas.display.line({
+		start: {x: firing_background.x + 10, y: firing_background.y}, 
+		end: {x: firing_background.x + 10, y: firing_background.y + firing_background.height},
+		stroke: "3px green"
+	});
+
+	// 3) Selection section
 	var spot_text = canvas.display.text({
 		x: 30,
 		y: 10,
@@ -250,8 +301,8 @@ function start_exercise() {
 
 	new_rf_button.bind("click tap", function() {
 
-		var x = Math.random() * (250 - 0);
-		var y = Math.random() * (250 - 0);
+		var x = Math.random() * (250 - 100) + 50;
+		var y = Math.random() * (250 - 100) + 50;
 
 		outer_circle.x = x + outer_circle.radius;
 		outer_circle.y = y + outer_circle.radius;
@@ -306,7 +357,9 @@ function start_exercise() {
 	// Add in all content for fire rate box
 	firing_section.addChild(firing_text);	
 	firing_section.addChild(firing_rate);
+	firing_section.addChild(firing_background);
 	
+	firing_section.addChild(firing_background_line);
 
 	// Add in all content for spot size selection box
 	selection_section.addChild(spot_text);
@@ -335,9 +388,92 @@ function start_exercise() {
 		rate = firing_rate.base;
 		rate_updated = Math.floor(Math.random() * ((rate+1) - (rate-1) + 1)) + (rate-1);
 		firing_rate.text = rate_updated.toString();
-		canvas.redraw();
-	}, 1000);
 
+		canvas.redraw();
+	}, 500);
+
+
+	function update_lines(speed) {
+
+		if (speed == 1) {
+			var firing_lines = [fl];
+		} else if (speed == 2) {
+			var firing_lines = [fl, fl2];
+		} else if (speed == 3) {
+			var firing_lines = [fl, fl2, fl3, fl4];
+		} else {
+			var firing_lines = [fl, fl2, fl3, fl4, fl5, fl6];
+		}
+		
+		for (i = 0; i < firing_lines.length; i++) {
+			x = firing_lines[i].start.x + 1;
+
+			if (x > firing_background.x + firing_background.width - 2) {
+				x = firing_background.x;
+			}
+
+			firing_lines[i].start.x = x;
+			firing_lines[i].end.x = x;
+		}
+	}	
+	canvas.setLoop(function() {
+
+		firing_section.removeChild(fl);
+		firing_section.removeChild(fl2);
+		firing_section.removeChild(fl3);
+		firing_section.removeChild(fl4);
+		firing_section.removeChild(fl5);
+		firing_section.removeChild(fl6);
+
+
+		//different firing bars show depending on the current firing rate
+		if (firing_rate.base <= 3)  {
+
+			firing_section.addChild(fl);
+			update_lines(1);
+
+		} else if (firing_rate.base <= 11) {
+
+			firing_section.addChild(fl);
+			firing_section.addChild(fl2);
+			update_lines(2); 
+
+		} else if (firing_rate.base <= 33) {
+
+			firing_section.addChild(fl);
+			firing_section.addChild(fl2);
+			firing_section.addChild(fl3);
+			firing_section.addChild(fl4);
+			update_lines(3); 
+
+		} else {
+
+			firing_section.addChild(fl);
+			firing_section.addChild(fl2);
+			firing_section.addChild(fl3);
+			firing_section.addChild(fl4);
+			firing_section.addChild(fl5);
+			firing_section.addChild(fl6);
+			update_lines(4); 
+
+		}
+
+		
+	}).start();
+
+	function calculate_fire_rate_medium(distance, value) {
+		distance  -= 3;
+		if (distance <= 1) {
+			distance = 1;
+		} 
+
+		value = parseInt(1/distance * value);
+		if (value <= 1) {
+			value = 2;
+		}
+
+		return value
+	}
 
 	function colliding() {
 			var dx = spot_control.x - outer_circle.x;
@@ -348,38 +484,40 @@ function start_exercise() {
 			var inner_dy = spot_control.y - inner_circle.y;
 			var inner_distance = Math.sqrt(inner_dy * inner_dx + inner_dy * inner_dy);
 
-
 			// different interactions for large, medium, and small ball
 			if (spot_control.radius ==  50) {
 				// go low when covering just red section, otherwise default
 				if ((distance  < spot_control.radius + 0.7*outer_circle.radius) && (distance > spot_control.radius +
 					-0.3*outer_circle.radius)) {
-					firing_rate.text = "1";
+					firing_rate.text = "2";
 					firing_rate.base = 2;	
 				}  else {
-					firing_rate.text = "11";
-					firing_rate.base = 11;
+					firing_rate.base = calculate_fire_rate_medium(distance-22, 11);
+					firing_rate.text = firing_rate.base.toString();
 				}
 			} else if (spot_control.radius == 30) {
 				// behave the same way that the large spot_control always does, because of relative sizes of ball and spot
 				if (outer_circle.radius == 30) {
 					if ((distance  < spot_control.radius + 0.7*outer_circle.radius) && (distance > spot_control.radius +
 							-0.3*outer_circle.radius)) {
-						firing_rate.text = "1";
-						firing_rate.base = 2;	
+						if (!firing_rate.base == 2 || firing_rate.base == 1 || firing_rate.base == 3) {
+							firing_rate.text = "2";
+							firing_rate.base = 2;
+						}
+							
 					}  else {
-						firing_rate.text = "11";
-						firing_rate.base = 11;
+						firing_rate.base = calculate_fire_rate_medium(distance, 11);
+						firing_rate.text = firing_rate.base.toString();
 					}
 				} else {	
 					// ball level spikes up high when covering middle
 					if ((distance  < spot_control.radius + 0.7*outer_circle.radius) && (distance > spot_control.radius +
 							-0.3*outer_circle.radius)) {
-						firing_rate.text = "1";
+						firing_rate.text = "2";
 						firing_rate.base = 2;	
-					} else if (inner_distance + 1.4 * inner_circle.radius < spot_control.radius + inner_circle.radius){
-						firing_rate.text = "85";
-						firing_rate.base = 85;
+					} else if (inner_distance + inner_circle.radius < spot_control.radius + inner_circle.radius){
+						firing_rate.base = calculate_fire_rate_medium(distance, 85);
+						firing_rate.text = firing_rate.base.toString();
 					}
 					else {
 						firing_rate.text = "11";
@@ -394,8 +532,8 @@ function start_exercise() {
 						firing_rate.text = "1";
 						firing_rate.base = 2;	
 					} else if (inner_distance + 1.4 * inner_circle.radius < spot_control.radius + inner_circle.radius){
-						firing_rate.text = "85";
-						firing_rate.base = 85;
+						firing_rate.base = calculate_fire_rate_medium(distance, 85);
+						firing_rate.text = firing_rate.base.toString();
 					} else {
 						firing_rate.text = "11";
 						firing_rate.base = 11;
@@ -404,9 +542,9 @@ function start_exercise() {
 					if ((distance < spot_control.radius + 0.7*outer_circle.radius) && (distance > inner_circle.radius)) {
 						firing_rate.text = "1";
 						firing_rate.base = 2;	
-					}  else if (distance < inner_circle.radius) {
-						firing_rate.text = "23";
-						firing_rate.base = 23;	
+					}  else if (distance < 1.3*inner_circle.radius) {
+						firing_rate.base = calculate_fire_rate_medium(distance-10, 23);
+						firing_rate.text = firing_rate.base.toString();
 					} else {
 						firing_rate.text = "11";
 						firing_rate.base = 11;
@@ -419,7 +557,22 @@ function start_exercise() {
 
 	spot_control.dragAndDrop({
 		move: function() {
-			colliding();
+			if(spot_control.x < spot_control.radius) {
+				spot_control.x = spot_control.radius;
+			}
+			if (spot_control.y < spot_control.radius) {
+				spot_control.y = spot_control.radius;
+			}
+
+			if (spot_control.y > moving_section.height - spot_control.radius) {
+				spot_control.y = moving_section.height - spot_control.radius;
+			}
+
+			if (spot_control.x > moving_section.width - spot_control.radius) {
+				spot_control.x = moving_section.width - spot_control.radius;
+			}
+
+			colliding(); 
 		} 	});
 
 
