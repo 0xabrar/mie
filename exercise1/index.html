@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="">
+		<title>Ganglion Receptive Fields</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="ocanvas-2.7.4.min.js"></script>
+		<script src="exercise.js"></script>
+		<script type="text/javascript" src="smoothie.js"></script>
+	</head>
+	<body onload="start_exercise()">
+		<canvas id="canvas" class="canvas" height="480" width="380" sytle="position: relative; z-index:1;"></canvas>
+		<canvas id="chart" class="canvas" width="74" height="22" style="z-index:2;">
+
+		<script type="text/javascript">
+	       // Randomly add a data point every 500ms
+      var random = new TimeSeries();
+      setInterval(function() {
+        random.append(new Date().getTime(), Math.random() * 10000);
+      }, 500);
+      
+        var chart = new SmoothieChart({labels:{disabled:true}, millisPerPixel:10});
+        chart.addTimeSeries(random, { strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(0, 255, 0, 0.2)', lineWidth: 4 });
+        chart.streamTo(document.getElementById("chart"), 500);
+      
+    	</script>
+	</body>
+</html>

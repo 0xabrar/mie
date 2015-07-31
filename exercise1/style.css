@@ -1,0 +1,10 @@
+.canvas{
+    position: absolute; 
+    left: 0px; 
+    top: 0px;
+}
+
+#chart {
+	left: 25px;
+	top: 65px;
+}
