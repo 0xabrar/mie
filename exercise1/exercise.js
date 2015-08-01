@@ -105,7 +105,7 @@ function start_exercise() {
 
 	// 3) Selection section
 	var spot_text = canvas.display.text({
-		x: 30,
+		x: 40,
 		y: 10,
 		font: "bold 12px sans-serif",
 		text: "Light Size",
@@ -244,6 +244,7 @@ function start_exercise() {
 		medium_ball.fill = "#0aa";
 		large_ball.fill = "#0aa";
 
+		bound_spot_control();
 		colliding();
 		canvas.redraw();
 	}).bind("mouseenter", function() {
@@ -260,6 +261,7 @@ function start_exercise() {
 		medium_ball.fill = "red";
 		large_ball.fill = "#0aa";
 
+		bound_spot_control();
 		colliding();
 		canvas.redraw();
 	}) .bind("mouseenter", function() {
@@ -276,6 +278,7 @@ function start_exercise() {
 		medium_ball.fill = "#0aa";
 		large_ball.fill = "red";
 
+		bound_spot_control();
 		colliding();
 		canvas.redraw();
 	}).bind("mouseenter", function() {
@@ -571,9 +574,8 @@ function start_exercise() {
 
 
 
-	spot_control.dragAndDrop({
-		move: function() {
-			if(spot_control.x < spot_control.radius) {
+	function bound_spot_control() {
+		if(spot_control.x < spot_control.radius) {
 				spot_control.x = spot_control.radius;
 			}
 			if (spot_control.y < spot_control.radius) {
@@ -587,7 +589,11 @@ function start_exercise() {
 			if (spot_control.x > moving_section.width - spot_control.radius) {
 				spot_control.x = moving_section.width - spot_control.radius;
 			}
+	}
 
+	spot_control.dragAndDrop({
+		move: function() {
+			bound_spot_control();
 			colliding(); 
 		} 	});
 
