@@ -20,7 +20,7 @@ function start_exercise() {
 	var moving_section = canvas.display.rectangle({
 		x: 10, 
 		y: 110,
-		width: 360,
+		width: 410,
 		height: 350,
 		fill: "white"
 	});
@@ -28,7 +28,7 @@ function start_exercise() {
 	var selection_section = canvas.display.rectangle({
 		x: 120, 
 		y: 10,
-		width: 250,
+		width: 300,
 		height: 85,
 		fill: "white"
 	});
@@ -145,7 +145,7 @@ function start_exercise() {
 	var spot_off_button = canvas.display.rectangle({
 		x: 160,
 		y: 18,
-		width: 75,
+		width: 125,
 		height: 23, 
 		fill: "black"
 	});
@@ -153,24 +153,24 @@ function start_exercise() {
 	var new_rf_button = canvas.display.rectangle({
 		x: 160,
 		y: 53,
-		width: 75,
+		width: 125,
 		height: 23, 
 		fill: "black"
 	});
 
 	var spot_on_off = canvas.display.text({
-		x: 7,
+		x: 40,
 		y: 7,
 		font: "bold 12px sans-serif",
-		text: "LIGHT OFF",
+		text: "Light Off",
 		fill: "white"
 	});
 
 	var new_rf = canvas.display.text({
-		x: 14,
+		x: 19,
 		y: 7,
 		font: "bold 12px sans-serif",
-		text: "NEW RF",
+		text: "Receptive Field",
 		fill: "white"
 	});
 
@@ -228,7 +228,7 @@ function start_exercise() {
 	
 
 	var cell_title = canvas.display.text({
-		x: 125,
+		x: 160,
 		y: 10,
 		font: "bold 14px sans-serif",
 		text: "ON-Centre Cell",
@@ -285,12 +285,15 @@ function start_exercise() {
 	});
 
 	spot_off_button.bind("click tap", function() {
-		if (spot_on_off.text == "LIGHT OFF") {
-			spot_on_off.text = "LIGHT ON";
+		if (spot_on_off.text == "Light Off") {
+			spot_on_off.text = "Light On";
 			spot_control.radius = 0;
+			firing_rate.base = 11;
+			firing_text = "11";
 		} else {
-			spot_on_off.text = "LIGHT OFF";
+			spot_on_off.text = "Light Off";
 			spot_control.radius = spot_control.last;
+			colliding();
 		}
 		canvas.redraw();
 	}).bind("mouseenter", function() {
@@ -301,8 +304,8 @@ function start_exercise() {
 
 	new_rf_button.bind("click tap", function() {
 
-		var x = Math.random() * (250 - 100) + 50;
-		var y = Math.random() * (250 - 100) + 50;
+		var x = Math.random() * (350- 100) + 50;
+		var y = Math.random() * (300 - 100) + 50;
 
 		outer_circle.x = x + outer_circle.radius;
 		outer_circle.y = y + outer_circle.radius;
@@ -341,6 +344,7 @@ function start_exercise() {
 			inner_circle_text.y = inner_circle.y-inner_circle.radius/1.3;	
 
 		}
+		colliding();
 		canvas.redraw();
 	}).bind("mouseenter", function() {
 		canvas.mouse.cursor("pointer");
@@ -466,7 +470,6 @@ function start_exercise() {
 		if (distance <= 1) {
 			distance = 1;
 		} 
-
 		value = parseInt(1/distance * value);
 		if (value <= 1) {
 			value = 2;
@@ -492,8 +495,15 @@ function start_exercise() {
 					firing_rate.text = "2";
 					firing_rate.base = 2;	
 				}  else {
-					firing_rate.base = calculate_fire_rate_medium(distance-22, 11);
-					firing_rate.text = firing_rate.base.toString();
+					if (distance < 50) {
+						firing_rate.base = calculate_fire_rate_medium(distance-22, 11);
+						firing_rate.text = firing_rate.base.toString();
+					} else {
+						firing_rate.base = 11;
+						firing_rate.text = "11";
+					}
+
+					
 				}
 			} else if (spot_control.radius == 30) {
 				// behave the same way that the large spot_control always does, because of relative sizes of ball and spot
@@ -506,8 +516,14 @@ function start_exercise() {
 						}
 							
 					}  else {
-						firing_rate.base = calculate_fire_rate_medium(distance, 11);
-						firing_rate.text = firing_rate.base.toString();
+						if (distance < 50) {
+							firing_rate.base = calculate_fire_rate_medium(distance, 11);
+							firing_rate.text = firing_rate.base.toString();
+						} else {
+							firing_rate.base = 11;
+							firing_rate.text = "11";
+						}
+						
 					}
 				} else {	
 					// ball level spikes up high when covering middle
