@@ -223,9 +223,34 @@ function start_exercise() {
 		fill: "red"
 	});
 
+	var inner_rf_text = canvas.display.text({
+		x: inner_rf.x,
+		y: inner_rf.y + inner_rf.height/2.7,
+		font: "bold 40px sans-serif",
+		text: "+",
+		fill: "black"
+	});
+
+	var outer_rf_text = canvas.display.text({
+		x: outer_rf.x + inner_rf.width / 5,
+		y: outer_rf.y + outer_rf.height/3,
+		font: "bold 43px sans-serif",
+		text: "-",
+		fill: "black"
+	});
+
+	var outer_rf_text_2 = canvas.display.text({
+		x: outer_rf.x+ outer_rf.width / 1.4,
+		y: outer_rf.y + outer_rf.height/3,
+		font: "bold 43px sans-serif",
+		text: "-",
+		fill: "black"
+	});
+
+
 	var bar_control = canvas.display.rectangle( {
-		x: 100,
-		y: 175,
+		x: 175,
+		y: 290,
 		width: 25,
 		height: 150,
 		fill: "#0aa",
@@ -360,14 +385,43 @@ function start_exercise() {
 		inner_rf.y = y;
 		outer_rf.y = y;
 
+		// when new rf used, swap between the two receptive field sizes
 		if (inner_rf.width == 25) {
 			inner_rf.width = inner_rf.width / 2;
+			outer_rf.width = inner_rf.width * 3;
+			outer_rf.x = inner_rf.x - inner_rf.width;
+
+			// re-arrange the labels on the receptive field
+			outer_rf_text.font = "bold 25px sans-serif";
+			outer_rf_text_2.font = "bold 25px sans-serif";
+			inner_rf_text.font = "bold 20px sans-serif";
+
+			inner_rf_text.x = inner_rf.x;
+			inner_rf_text.y = inner_rf.y + inner_rf.height/2.7 + 5;
+			outer_rf_text.x = outer_rf.x + inner_rf.width / 5;
+			outer_rf_text.y =  outer_rf.y + outer_rf.height/3 + 5;
+			outer_rf_text_2.x = outer_rf.x+ outer_rf.width / 1.4;
+			outer_rf_text_2.y = outer_rf.y + outer_rf.height/3 + 5;
 			
 		} else {
 			inner_rf.width = inner_rf.width * 2;
+			outer_rf.width = inner_rf.width * 3;
+			outer_rf.x = inner_rf.x - inner_rf.width;
+
+			// re-arrange the labels on the receptive field
+			outer_rf_text.font = "bold 43px sans-serif";
+			outer_rf_text_2.font = "bold 43px sans-serif";
+			inner_rf_text.font = "bold 40px sans-serif";
+
+			inner_rf_text.x = inner_rf.x;
+			inner_rf_text.y = inner_rf.y + inner_rf.height/2.7;
+			outer_rf_text.x = outer_rf.x + inner_rf.width / 5;
+			outer_rf_text.y =  outer_rf.y + outer_rf.height/3;
+			outer_rf_text_2.x = outer_rf.x+ outer_rf.width / 1.4;
+			outer_rf_text_2.y = outer_rf.y + outer_rf.height/3;
+
 		}	
-		outer_rf.width = inner_rf.width * 3;
-		outer_rf.x = inner_rf.x - inner_rf.width;
+		
 
 		colliding();
 		canvas.redraw();
@@ -412,6 +466,11 @@ function start_exercise() {
 	moving_section.addChild(cell_title);
 	moving_section.addChild(outer_rf);
 	moving_section.addChild(inner_rf);
+
+	moving_section.addChild(inner_rf_text);
+	moving_section.addChild(outer_rf_text);
+	moving_section.addChild(outer_rf_text_2);
+
 	moving_section.addChild(bar_control);
 
 	function update_lines(speed) {
@@ -485,6 +544,8 @@ function start_exercise() {
 	}).start();
 
 	function between(x, y,  min_x, max_x, min_y, max_y) {
+
+		// adjust for the offset of the moving section
 		min_x += 10;
 		max_x += 10;
 		min_y += 110;
@@ -493,12 +554,33 @@ function start_exercise() {
 		return (x >= min_x && x <= max_x) && (y >= min_y && y <= max_y);
 	}
 
+	function calculate_fire_rate_medium(distance, value) {
+		distance  -= 3;
+		if (distance <= 1) {
+			distance = 1;
+		} 
+		value = parseInt(1/distance * value);
+		if (value <= 1) {
+			value = 2;
+		}
 
+		return value
+	}
+
+	// manages all of the different cases for which the fire rate will change based on the bar_control position
 	function colliding()  {
 
 			var x = bar_control.x;
 			var y = bar_control.y;
 			var rotation = bar_control.rotation;
+
+			// hack-fix for situations when orientation changed with moving part
+			if (rotation != 180) {
+				firing_rate.base = 11;
+				firing_rate.text = firing_rate.base.toString();
+				return;
+			}
+
 
 			// different movement depending on whether it's a large rf or small rf
 			if (inner_rf.width == 25) {
@@ -507,11 +589,15 @@ function start_exercise() {
 
 					// most interaction is straight bar
 					if (rotation == 180) {
+						// large bar at middle or top of green bar
 						if (between(x, y, inner_rf.x, inner_rf.x+inner_rf.width, inner_rf.y, inner_rf.y+inner_rf.height)) {
+							
 							if(y > inner_rf.y+200) {
-								firing_rate.text = "55";
-								firing_rate.base = 55;
+								distance = bar_control.y - inner_rf.y - 200;
+								firing_rate.base = calculate_fire_rate_medium(distance-10, 55);
+								firing_rate.text = firing_rate.base.toString();
 							} else {
+								// bar top top
 								firing_rate.text = "90";
 								firing_rate.base = 90;
 							}
