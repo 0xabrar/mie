@@ -268,6 +268,7 @@ function start_exercise() {
 		firing_rate.text = "10";
 		firing_rate.base = 10;
 
+		bound_bar_control();
 		colliding();
 		canvas.redraw();
 	}).bind("mouseenter", function() {
@@ -281,6 +282,7 @@ function start_exercise() {
 		firing_rate.text = "10";
 		firing_rate.base = 10;
 
+		bound_bar_control();
 		colliding();
 		canvas.redraw();
 	}).bind("mouseenter", function() {
@@ -299,6 +301,7 @@ function start_exercise() {
 		orientation_45.fill = "#0aa";
 		orientation_90.fill = "#0aa";
 
+		bound_bar_control();
 		colliding();
 		canvas.redraw();
 	}).bind("mouseenter", function() {
@@ -316,6 +319,7 @@ function start_exercise() {
 		orientation_45.fill = "#0aa";
 		orientation_90.fill = "#0aa";
 
+		bound_bar_control();
 		colliding();
 		canvas.redraw();
 	}).bind("mouseenter", function() {
@@ -333,6 +337,7 @@ function start_exercise() {
 		orientation_45.fill = "#0aa";
 		orientation_90.fill = "#0aa";
 
+		bound_bar_control();
 		colliding();
 		canvas.redraw();
 	}).bind("mouseenter", function() {
@@ -350,6 +355,7 @@ function start_exercise() {
 		orientation_45.fill = "red";
 		orientation_90.fill = "#0aa";
 
+		bound_bar_control();
 		colliding();
 		canvas.redraw();
 	}).bind("mouseenter", function() {
@@ -367,6 +373,7 @@ function start_exercise() {
 		orientation_45.fill = "#0aa";
 		orientation_90.fill = "red";
 
+		bound_bar_control();
 		colliding();
 		canvas.redraw();
 	}).bind("mouseenter", function() {
@@ -680,26 +687,72 @@ function start_exercise() {
 		}
 
 
+	/*
+	Stop the bar_control from moving outside of the bounding box. Bounds ar calculated
+	depending on which orientation is chosen.  
+	*/
 	function bound_bar_control() {
-		if(bar_control.x < bar_control.width) {
+
+		rotation = bar_control.rotation;
+
+		if (rotation == 180) {
+
+			if(bar_control.x < bar_control.width) {
 				bar_control.x = bar_control.width;
 			}
 			if (bar_control.y < bar_control.height) {
 				bar_control.y = bar_control.height;
 			}
 
-			if (bar_control.y > moving_section.height - bar_control.height) {
-				bar_control.y = moving_section.height - bar_control.height;
+			if (bar_control.y > moving_section.height) {
+				bar_control.y = moving_section.height;
 			}
 
-			if (bar_control.x > moving_section.width - bar_control.width) {
-				bar_control.x = moving_section.width - bar_control.width;
+			if (bar_control.x > moving_section.width) {
+				bar_control.x = moving_section.width;
 			}
+
+		} else if (rotation == 90) {
+
+			if(bar_control.x < bar_control.height) {
+				bar_control.x = bar_control.height;
+			}
+			if (bar_control.y < 0) {
+					bar_control.y = 0;
+			}
+			if (bar_control.y > moving_section.height - bar_control.width) {
+					bar_control.y = moving_section.height - bar_control.width;
+			}
+
+			if (bar_control.x > moving_section.width) {
+					bar_control.x = moving_section.width;
+			}
+
+		} else if (rotation == 270) {
+
+			if(bar_control.x < 0) {
+				bar_control.x = 0;
+			}
+			if (bar_control.y < bar_control.width) {
+					bar_control.y = bar_control.width;
+			}
+			if (bar_control.y > moving_section.height) {
+					bar_control.y = moving_section.height;
+			}
+
+			if (bar_control.x > moving_section.width - bar_control.height) {
+					bar_control.x = moving_section.width - bar_control.height;
+			}
+
+		} 
+		
 	}
+
+
 
 	bar_control.dragAndDrop({
 		move: function() {
-			// bound_bar_control();
+			bound_bar_control();
 			colliding();
 		}
 	});
